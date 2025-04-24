@@ -1,26 +1,40 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Pet, pets } from '../../../data/pets';
+import { Pet } from '../../../data/pets';
+import { HttpClient,HttpClientModule } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-pet-details',
   standalone: true,
-  imports: [],
+  imports: [HttpClientModule],
   templateUrl: './pet-details.component.html',
   styleUrl: './pet-details.component.css'
 })
 export class PetDetailsComponent {
   pet: Pet | null = null;
-  pets = pets;
+  //pets = pets;
 
   constructor(private route: ActivatedRoute, private router: Router) {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    const foundPet = pets.find((p) => p.id === id);
+  
+    this.getSingle(id).subscribe( (Response) => {this.pet = Response; console.log(Response)} );
 
-    if (!foundPet) {
-      this.router.navigate(['/pets']);
-    } else {
-      this.pet = foundPet;
-    }
   }
+
+
+
+
+
+
+    http = inject(HttpClient)
+  
+    getSingle(id:number): Observable<Pet>{
+      return this.http.get<Pet>(`https://pets-react-query-backend.eapi.joincoded.com/pets/${id}`)
+      
+    }
+
+    getAll(): Observable<Pet[]>{
+      return this.http.get<Pet[]>("https://pets-react-query-backend.eapi.joincoded.com/pets")
+    }
 }
